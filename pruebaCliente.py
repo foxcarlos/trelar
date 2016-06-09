@@ -28,25 +28,18 @@ for b in abiertos:
     for l in b.all_lists():
         for c in l.list_cards():
             print( c.fetch() )
-            
-            
-# Otros Comandos aplicados a las tarjetas
+
+# Otros Comandos de pruebas eralizados para obtener inforamcion de las tarjetas
+
+"""
 >>> c.assign
-
-
 >>> c.attach
-
-
 >>> c.attachments
-
 >>> c.attriExp
-
-
 >>> c.board
 <Board trelar>
 
 >>> c.checklists
-
 >>> c.client
 <trello.trelloclient.TrelloClient object at 0xb41b4c4c>
 
@@ -55,7 +48,6 @@ False
 
 >>> c.comment
 <bound method Card.comment of <Card Testing a py-trello, obtener un listado de todos los tableros.>>
-
 
 >>> c.create_date
 datetime.datetime(2016, 6, 9, 4, 49, 2, 620000, tzinfo=tzutc())
@@ -73,7 +65,6 @@ u''
 u''
 
 >>> c.due
-
 >>> c.due_date
 ''
 
@@ -109,3 +100,5 @@ u'https://trello.com/c/9bDQNh0q'
 
 >>> c.url
 u'https://trello.com/c/9bDQNh0q/16-testing-a-py-trello-obtener-un-listado-de-todos-los-tableros'
+
+"""
