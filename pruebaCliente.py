@@ -33,7 +33,13 @@ print(tablero)
 print( tablero.all_lists() )
 
 # Obtener de un tablero una lista o columna por su ID
-tablero.get_list('57582109bba4b95e66dbf4e1')
+lista = tablero.get_list('57582109bba4b95e66dbf4e1')
+
+# Obtener de una lista la cantidad de tarjetas que posee
+lista.cardsCnt()
+
+# Obtener todas las tarjetas que posee
+lista.list_cards()
 
 # Listar los tableros Abiertos
 print( client.list_boards(board_filter="open") )
