@@ -12,6 +12,29 @@ client = TrelloClient(api_key='05571f7ecf0d9177c020b9ab3495aaac',
     token_secret='5d0d9ac40b148703315c54e64b7998d2'
 )
 
+def getTableros(filtro=""):
+    filtroPasado = filtro
+    tableros = client.list_boards(board_filter=filtroPasado)
+    lista = []
+    
+    registros = [(tn.name, tn.id) for tn in tableros]
+    for f in registros:
+        campos = ['nombre_tablero', 'id_tablero']
+        convertir = dict(zip(campos, f))
+        lista.append(convertir)
+    tablerosDevolver = json.dumps(lista)
+    return tablerosDevolver
+
+# Obtener un tablero por su ID
+tablero = client.get_board('57581f7d6a945e2f6630a793')
+print(tablero)
+
+# Obtener todas las listas de un tablero
+print( tablero.all_lists() )
+
+# Obtener de un tablero una lista o columna por su ID
+tablero.get_list('57582109bba4b95e66dbf4e1')
+
 # Listar los tableros Abiertos
 print( client.list_boards(board_filter="open") )
 
@@ -29,7 +52,7 @@ for b in abiertos:
         for c in l.list_cards():
             print( c.fetch() )
 
-# Otros Comandos de pruebas eralizados para obtener inforamcion de las tarjetas
+# Otros Comandos de pruebas realizados para obtener inforamcion de las tarjetas
 
 """
 >>> c.assign
