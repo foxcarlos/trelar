@@ -95,11 +95,24 @@ def getTableros():
 @bottle.route('/tableros/<id>')
 def getTablero(id_tablero):
     '''Metodo GET que permite obtener un
-    tableros por su Id'''
+    tableros por su Id pasado y devolver 
+    informacion de las tarjetas asociadas Ej:
+    - tableroNombre
+    - listaId
+    - listaNombre
+    - cantidadTarjetas
+    '''
 
-    tablero = client.get_board(id_tablero)
+    miTablero = client.get_board(id_tablero)
+    listaDevolver = []
+    campos = ['tableroNombre', 'listaId', 'listaNombre', 'cantidadTarjetas']
+    
+    for listas in miTablero.open_lists():
+        lista = ( listas.board.name, listas.id, listas.name, listas.cardsCnt() )
+        listaDevolver.append( json.dumps(dict( zip(campos, lista) )) )
+    print(listaDevolver)
 
-    return tablero
+    return listaDevolver
 
 # bottle.debug(True)
 bottle.run(host='0.0.0.0', port=8086, server=GeventWebSocketServer, reloader=True)

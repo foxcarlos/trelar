@@ -3,3 +3,6 @@ oauth2
 requests
 requests-oauthlib
 python-dateutil
+pip install bottle
+pip install websocket-client
+pip install bottle-websocket
