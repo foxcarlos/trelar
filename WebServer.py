@@ -92,27 +92,78 @@ def getTableros():
     return tablerosDevolver
 
 
-@bottle.route('/tableros/<id>')
-def getTablero(id_tablero):
-    '''Metodo GET que permite obtener un
-    tableros por su Id pasado y devolver 
-    informacion de las tarjetas asociadas Ej:
+@bottle.route('/listas')
+def getListas():
+    '''Parametros Recibidos 1: json con el Id del Tablero
+    Metodo GET que permite obtener todas
+    las Listas asociadas a un tablero y devolver 
+    informacion Ej:
     - tableroNombre
     - listaId
     - listaNombre
-    - cantidadTarjetas
+    - cantidadTarjetas en cada lista
     '''
-
-    miTablero = client.get_board(id_tablero)
-    listaDevolver = []
+    tableroRecibido = bottle.request.json
+    tableroId = tableroRecibido['id']
+    miTablero = client.get_board(tableroId)
+    
+    listasDevolver = []
     campos = ['tableroNombre', 'listaId', 'listaNombre', 'cantidadTarjetas']
     
-    for listas in miTablero.open_lists():
-        lista = ( listas.board.name, listas.id, listas.name, listas.cardsCnt() )
-        listaDevolver.append( json.dumps(dict( zip(campos, lista) )) )
-    print(listaDevolver)
+    # miTablero.all_lists() busca listas abiertas y cerradas
+    for lista in miTablero.open_lists():
+        infLista = ( lista.board.name, lista.id, lista.name, lista.cardsCnt() )
+        listasDevolver.append( json.dumps(dict( zip(campos, infLista) )) )
+    print(listasDevolver)
+    return listasDevolver
 
+@bottle.route('/lista/<id>')
+def getLista(id_lista):
+    ''' 
+     Metodo GET que permite buscar una lista
+     por su ID pasado como parametro
+    '''
+    tableroRecibido = bottle.request.json
+    tableroId = tableroRecibido['id']
+    miTablero = client.get_board('57581f7d6a945e2f6630a793')  # tableroId
+    lista = tablero.get_list(id_lista)
+    
+    campos = ['tableroNombre', 'listaId', 'listaNombre', 'cantidadTarjetas']
+    infLista = ( lista.board.name, lista.id, lista.name, lista.cardsCnt() )
+    listaDevolver = json.dumps(dict( zip(campos, infLista) ))
     return listaDevolver
 
+
+@bottle.route('/tarjeta/<id>')
+def getTarjeta(id_tarjeta):
+    '''Metodo que permite obtener una 
+    tarjeta basada en su ID pasado 
+    como parametro'''
+    
+    tarjeta = client.get_card(id_tarjeta)
+    
+    # Propiedades de la tarjeta
+    tarjeta.get_list().name  # nombre de la lista donde esta la tarjeta
+    
+    tarjeta.listCardMove_date()  #Litas las cuales a pertenecido esta tarjeta
+    tarjeta.create_date
+    tarjeta.dateLastActivity
+    tarjeta.get_comments()
+    tarjeta.id
+    tarjeta.idLabels
+    tarjeta.labels  # Lista con todas las propiedades de la etiqueta
+    # Ejemplo:
+    for l in tarjeta.labels:
+        l.id, l.name, l.color
+        
+    tarjeta.idList  # parece ser lo mismo que -> tarjeta.list_id
+    tarjeta.latestCardMove_date  #Fecha de la ultima vez que se movio la tarjeta
+    tarjeta.list_labels  # Lista de etiquetas, una tarjeta puede contener varias labels
+    # Ejemplo:
+    for l in tarjeta.list_labels:
+        l.id, l.name, l.color
+    tarjeta.member_ids
+    tarjeta.name
+    
 # bottle.debug(True)
 bottle.run(host='0.0.0.0', port=8086, server=GeventWebSocketServer, reloader=True)

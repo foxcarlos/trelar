@@ -58,6 +58,44 @@ for b in abiertos:
         for c in l.list_cards():
             print( c.fetch() )
 
+# Obtener una tarjeta por su ID
+def getTarjeta(id_tarjeta):
+    tarjeta = client.get_card(id_tarjeta)
+
+# Obtener la fecha en que se movio un tarjeta
+tarjeta.listCardMove_date()
+
+# Mas sobre las tarjetas
+    tarjeta.listCardMove_date()  #Litas las cuales a pertenecido esta tarjeta
+    tarjeta.create_date
+    tarjeta.dateLastActivity
+    tarjeta.get_comments()
+    tarjeta.id
+    tarjeta.idLabels
+    tarjeta.labels  # Lista con todas las propiedades de la etiqueta
+    # Ejemplo:
+    for l in tarjeta.labels:
+        l.id, l.name, l.color
+        
+    tarjeta.idList
+    tarjeta.latestCardMove_date  #Fecha de la ultima vez que se movio la tarjeta
+    tarjeta.list_labels  # Lista de etiquetas, una tarjeta puede contener varias labels
+    # Ejemplo:
+    for l in tarjeta.list_labels:
+        l.id, l.name, l.color
+    tarjeta.member_ids
+    tarjeta.name
+
+# 
+def getLista(id_lista):
+    tableroRecibido = {'id': '57581f7d6a945e2f6630a793'}
+    tableroId = tableroRecibido['id']
+    miTablero = client.get_board('57581f7d6a945e2f6630a793')
+    lista = miTablero.get_list(id_lista)
+
+# Cerrar sesion token
+client.logout
+
 # Otros Comandos de pruebas realizados para obtener inforamcion de las tarjetas
 
 """
