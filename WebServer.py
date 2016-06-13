@@ -158,6 +158,7 @@ def getTarjetas():
     miTablero = client.get_board(tableroId)
     miLista = tablero.get_list(listaId)
     tarjetas = miLista.list_cards()
+    
     # listaDeTarjetas = [ json.dumps( dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) ) for f in tarjetas]
     listaDeTarjetas = [ dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) for f in tarjetas]
     campos = ['tableroNombre', 'listaId', 'listaNombre', 'Tarjetas']
@@ -177,7 +178,14 @@ def getTarjeta(id_tarjeta):
     # Propiedades de la tarjeta
     tarjeta.get_list().name  # nombre de la lista donde esta la tarjeta
     
-    tarjeta.listCardMove_date()  #Litas las cuales a pertenecido esta tarjeta
+    tarjeta.listCardMove_date()  #Litas las cuales a pertenecido esta tarjeta Ej:
+    
+    #Este Metodo es el que me permite medir el tiempo que se ha mvido de una tarjeta a otra
+    x = [
+            [u'En Desarrollo', u'Revision', datetime.datetime(2016, 6, 13, 5, 30, 25, 99000, tzinfo=tzutc())],
+            [u'Decidido', u'En Desarrollo', datetime.datetime(2016, 6, 13, 5, 28, 39, 474000, tzinfo=tzutc())]
+        ]
+    
     tarjeta.create_date
     tarjeta.dateLastActivity
     tarjeta.get_comments()
