@@ -121,7 +121,11 @@ def getListas():
 def getLista(id_lista):
     ''' 
      Metodo GET que permite buscar una lista
-     por su ID pasado como parametro
+     por su ID pasado como parametro, devuelve
+    - tableroNombre
+    - listaId
+    - listaNombre
+    - cantidadTarjetas en cada lista
     '''
     tableroRecibido = bottle.request.json
     tableroId = tableroRecibido['id']
@@ -134,6 +138,34 @@ def getLista(id_lista):
     return listaDevolver
 
 
+@bottle.route('/tarjetas')
+def getTarjetas():
+    ''' 
+     Metodo GET que permite buscar todas las tajetas
+     pereteneciente a una lista.
+     
+     Recibe: un JSON con la siguiente informacion:
+     {tablero_id:'', lista_id: ''}
+     
+     Devuelve: un JSON con:
+     tableroNombre', 'listaId', 'listaNombre', 'Todas las Tarjetas'
+    '''
+    
+    jsonRecibido = bottle.request.json
+    tableroId = jsonRecibido['tablero_id']
+    listaId = jsonRecibido['lista_id']
+    
+    miTablero = client.get_board(tableroId)
+    miLista = tablero.get_list(listaId)
+    tarjetas = miLista.list_cards()
+    # listaDeTarjetas = [ json.dumps( dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) ) for f in tarjetas]
+    listaDeTarjetas = [ dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) for f in tarjetas]
+    campos = ['tableroNombre', 'listaId', 'listaNombre', 'Tarjetas']
+    infLista = ( miLista.board.name, miLista.id, miLista.name, listaDeTarjetas )
+    listaDevolver = json.dumps(dict( zip(campos, infLista) ))
+    return listaDevolver
+    
+    
 @bottle.route('/tarjeta/<id>')
 def getTarjeta(id_tarjeta):
     '''Metodo que permite obtener una 
