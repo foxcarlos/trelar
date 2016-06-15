@@ -6,12 +6,14 @@ __author__ = 'FoxCarlos'
 import json
 import bottle
 from bottle.ext.websocket import GeventWebSocketServer
-# from static.python.datos import sql
-# from static.python.notificar import notificar
-# import time
 from constants import TRELLO_API_KEY, TRELLO_API_SECRET, TRELLO_TOKEN, TRELLO_TOKEN_SECRET
 from trello import TrelloClient
 
+
+TRELLO_API_KEY = '05571f7ecf0d9177c020b9ab3495aaac'
+TRELLO_API_SECRET = '03a65f30fb4946c03cba7998327f7e10025493f7e036408d6efbcdbd63fc66f5'
+TRELLO_TOKEN = '1316a12594687b611d0c631896b9b421436bd955d0d376162521c5ed267155d8'
+TRELLO_TOKEN_SECRET = '5d0d9ac40b148703315c54e64b7998d2'
 
 client = TrelloClient(
     api_key=TRELLO_API_KEY,
@@ -130,10 +132,15 @@ def getLista(id_lista):
     - listaNombre
     - cantidadTarjetas en cada lista
     '''
-    tableroRecibido = bottle.request.json
+    
+    # Se coloco temporal el id del trablero como constante,
+    # realmente debe llegar mediante un ajax como parametro json
+    # pero para prueba se coloca asi
+    
+    tableroRecibido = {'id': '57581f7d6a945e2f6630a793'}  # bottle.request.json
     tableroId = tableroRecibido['id']
     miTablero = client.get_board('57581f7d6a945e2f6630a793')  # tableroId
-    lista = tablero.get_list(id_lista)
+    lista = miTablero.get_list(id_lista)
     
     campos = ['tableroNombre', 'listaId', 'listaNombre', 'cantidadTarjetas']
     infLista = ( lista.board.name, lista.id, lista.name, lista.cardsCnt() )
@@ -154,12 +161,16 @@ def getTarjetas():
      tableroNombre', 'listaId', 'listaNombre', 'Todas las Tarjetas'
     '''
     
-    jsonRecibido = bottle.request.json
+    # Se coloco temporal el id del trablero como constante,
+    # realmente debe llegar mediante un ajax como parametro json
+    # pero para prueba se coloca asi:
+    
+    jsonRecibido = {'tablero_id': '57581f7d6a945e2f6630a793', 'lista_id': '57582133019601b62df80514'}  # bottle.request.json
     tableroId = jsonRecibido['tablero_id']
     listaId = jsonRecibido['lista_id']
     
     miTablero = client.get_board(tableroId)
-    miLista = tablero.get_list(listaId)
+    miLista = miTablero.get_list(listaId)
     tarjetas = miLista.list_cards()
     
     # listaDeTarjetas = [ json.dumps( dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) ) for f in tarjetas]
