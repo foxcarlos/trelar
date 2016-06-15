@@ -72,9 +72,12 @@ def index():
 @bottle.route('/tableros')
 def getTableros():
     '''Metodo GET que permite listar todos
-    los tableros, recibe un JSON con el filtro
+    los tableros.
+    
+    Recibe: Un JSON con el filtro
     que se desea aplicar, Ej: closed, open y
-    devolver una lista con varios objetos JSON
+    
+    Devuelve: Una lista con varios objetos JSON
     con la informacio del id y nombre del tablero'''
 
     filtro = bottle.request.json
@@ -92,8 +95,8 @@ def getTableros():
     return tablerosDevolver
 
 
-@bottle.route('/listas')
-def getListas():
+@bottle.route('/listas/<id_tablero>')
+def getListas(id_tablero):
     '''Parametros Recibidos 1: json con el Id del Tablero
     Metodo GET que permite obtener todas
     las Listas asociadas a un tablero y devolver 
@@ -103,8 +106,8 @@ def getListas():
     - listaNombre
     - cantidadTarjetas en cada lista
     '''
-    tableroRecibido = bottle.request.json
-    tableroId = tableroRecibido['id']
+    # tableroRecibido = bottle.request.json
+    tableroId = id_tablero  # tableroRecibido['id']
     miTablero = client.get_board(tableroId)
     
     listasDevolver = []
@@ -117,7 +120,7 @@ def getListas():
     print(listasDevolver)
     return listasDevolver
 
-@bottle.route('/lista/<id>')
+@bottle.route('/lista/<id_lista>')
 def getLista(id_lista):
     ''' 
      Metodo GET que permite buscar una lista
@@ -165,9 +168,36 @@ def getTarjetas():
     infLista = ( miLista.board.name, miLista.id, miLista.name, listaDeTarjetas )
     listaDevolver = json.dumps(dict( zip(campos, infLista) ))
     return listaDevolver
+
+    
+@bottle.route('/tarjetaBuscarMovmientos/<id_tarjeta>')
+def getBuscarMovTarjeta(id_tarjeta):
+    '''Metodo que permite obtener los movimientos
+    de una  tarjeta (listaInical, listaFinal, fecha)
+    basada en su ID pasado como parametro'''
+    
+    # Para Ejemplo:
+    # http://127.0.0.1:8086/tarjetaBuscarMovmientos/575e3f6ddf99f52d0b8b8795
+    
+    tarjeta = client.get_card(id_tarjeta)
+    listaFechaMovTarjeta = [ dict(zip( ['inicio' ,'fin' ,'fecha'] ,(f[0], f[1], f[2]) )) \
+    for f in tarjeta.listCardMove_date()]
+    
+    for j in listaFechaMovTarjeta:
+        if j['fin'] == u'En Desarrollo':
+            fechaInicial = j['fecha']
+        if j['fin'] == u'Terminado':
+            fechaFinal = j['fecha']
+    
+    fechaCreacion = tarjeta.create_date
+    diferencia = fechaFinal - fechaInicial
+    tiempoEnDias = diferencia.days
+    tiempoEnSeg = diferencia.seconds / 3600
+    model = {'dias': tiempoEnDias, 'horas': tiempoEnSeg}
+    return model
     
     
-@bottle.route('/tarjeta/<id>')
+@bottle.route('/tarjeta/<id_tarjeta>')
 def getTarjeta(id_tarjeta):
     '''Metodo que permite obtener una 
     tarjeta basada en su ID pasado 
