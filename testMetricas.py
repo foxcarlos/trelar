@@ -21,4 +21,5 @@ if r.status_code == 200:
         
 
 
-requests.get("/tarjetaBuscarMovmientos/", params = {"id_tarjeta":"575e3f6ddf99f52d0b8b8795"})
+requests.get("http://127.0.0.1:8086/tarjetaBuscarMovmientos/)
+requests.get("http://127.0.0.1:8086/tarjetaBuscarMovmientos/575e3f6ddf99f52d0b8b8795")
