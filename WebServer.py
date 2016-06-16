@@ -6,8 +6,9 @@ __author__ = 'FoxCarlos'
 import json
 import bottle
 from bottle.ext.websocket import GeventWebSocketServer
-from constants import TRELLO_API_KEY, TRELLO_API_SECRET, TRELLO_TOKEN, TRELLO_TOKEN_SECRET
+# from constants import TRELLO_API_KEY, TRELLO_API_SECRET, TRELLO_TOKEN, TRELLO_TOKEN_SECRET
 from trello import TrelloClient
+import datetime
 
 
 TRELLO_API_KEY = '05571f7ecf0d9177c020b9ab3495aaac'
@@ -63,11 +64,6 @@ def static(filename):
 
 @bottle.route('/')
 def index():
-    # usuario = ''
-    # bottle.response.set_cookie("account", usuario)
-    # username = bottle.request.get_cookie("account")
-
-    # print('usuario',username)
     return bottle.static_file("index.html", root='')
 
 
@@ -97,8 +93,8 @@ def getTableros():
     return tablerosDevolver
 
 
-@bottle.route('/listas/<id_tablero>')
-def getListas(id_tablero):
+@bottle.route('/listas')
+def getListas():
     '''Parametros Recibidos 1: json con el Id del Tablero
     Metodo GET que permite obtener todas
     las Listas asociadas a un tablero y devolver 
@@ -108,8 +104,8 @@ def getListas(id_tablero):
     - listaNombre
     - cantidadTarjetas en cada lista
     '''
-    # tableroRecibido = bottle.request.json
-    tableroId = id_tablero  # tableroRecibido['id']
+    tableroRecibido = bottle.request.json
+    tableroId = tableroRecibido['tablero_id']
     miTablero = client.get_board(tableroId)
     
     listasDevolver = []
@@ -161,11 +157,7 @@ def getTarjetas():
      tableroNombre', 'listaId', 'listaNombre', 'Todas las Tarjetas'
     '''
     
-    # Se coloco temporal el id del trablero como constante,
-    # realmente debe llegar mediante un ajax como parametro json
-    # pero para prueba se coloca asi:
-    
-    jsonRecibido = {'tablero_id': '57581f7d6a945e2f6630a793', 'lista_id': '57582133019601b62df80514'}  # bottle.request.json
+    jsonRecibido = bottle.request.json
     tableroId = jsonRecibido['tablero_id']
     listaId = jsonRecibido['lista_id']
     
@@ -173,7 +165,6 @@ def getTarjetas():
     miLista = miTablero.get_list(listaId)
     tarjetas = miLista.list_cards()
     
-    # listaDeTarjetas = [ json.dumps( dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) ) for f in tarjetas]
     listaDeTarjetas = [ dict(zip( ['id', 'nombre_tarjeta'],(f.id, f.name))) for f in tarjetas]
     campos = ['tableroNombre', 'listaId', 'listaNombre', 'Tarjetas']
     infLista = ( miLista.board.name, miLista.id, miLista.name, listaDeTarjetas )
@@ -181,21 +172,18 @@ def getTarjetas():
     return listaDevolver
 
     
-@bottle.route('/tarjetaBuscarMovmientos/<id_tarjeta>')
+@bottle.route('/tarjetasTerminadas/<id_tarjeta>')
 def getBuscarMovTarjeta(id_tarjeta):
     '''Metodo que permite obtener los movimientos
     de una  tarjeta (listaInical, listaFinal, fecha)
     basada en su ID pasado como parametro'''
-    
-    # Para Ejemplo:
-    # http://127.0.0.1:8086/tarjetaBuscarMovmientos/575e3f6ddf99f52d0b8b8795
     
     tarjeta = client.get_card(id_tarjeta)
     listaFechaMovTarjeta = [ dict(zip( ['inicio' ,'fin' ,'fecha'] ,(f[0], f[1], f[2]) )) \
     for f in tarjeta.listCardMove_date()]
     
     for j in listaFechaMovTarjeta:
-        if j['fin'] == u'En Desarrollo':
+        if j['inicio'] == u'En Desarrollo':
             fechaInicial = j['fecha']
         if j['fin'] == u'Terminado':
             fechaFinal = j['fecha']
@@ -204,10 +192,59 @@ def getBuscarMovTarjeta(id_tarjeta):
     diferencia = fechaFinal - fechaInicial
     tiempoEnDias = diferencia.days
     tiempoEnSeg = diferencia.seconds / 3600
-    model = {'dias': tiempoEnDias, 'horas': tiempoEnSeg}
+    # model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias, 'horas': tiempoEnSeg}
+    model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias}
     return model
     
+
+@bottle.route('/tarjetasEnBacklog/<id_tarjeta>')
+def getTarjetaEnBacklog(id_tarjeta):
+    '''Metodo que permite obtener los movimientos
+    de una  tarjeta (listaInical, listaFinal, fecha)
+    basada en su ID pasado como parametro'''
     
+    tarjeta = client.get_card(id_tarjeta)
+    
+    # Si la Tarjeta no se ha movido
+    if not tarjeta.listCardMove_date():
+        fechaCreacion = tarjeta.create_date.date()
+        fechaTocadaUltimaVez = tarjeta.dateLastActivity.date()
+        
+        hoy = datetime.date.today()
+        diferencia = hoy - fechaCreacion
+        tiempoEnDias = diferencia.days
+        
+        diferTocadaUltVez = hoy - fechaTocadaUltimaVez
+        tiempoEnDias2 = diferTocadaUltVez.days
+        model = {'Nombre Tarjeta': tarjeta.name, 'diasCreada': tiempoEnDias, 'DiasDeTocadaLaUltimaVez': tiempoEnDias2}
+    return model
+    
+
+@bottle.route('/tarjetasLeadTime/<id_tarjeta>')
+def getBuscarTarjetasLeadTime(id_tarjeta):
+    '''Metodo que permite obtener los movimientos
+    de una  tarjeta (listaInical, listaFinal, fecha)
+    basada en su ID pasado como parametro'''
+    
+    tarjeta = client.get_card(id_tarjeta)
+    listaFechaMovTarjeta = [ dict(zip( ['inicio' ,'fin' ,'fecha'] ,(f[0], f[1], f[2]) )) \
+    for f in tarjeta.listCardMove_date()]
+    
+    for j in listaFechaMovTarjeta:
+        if j['inicio'] == u'Ideas (backlog)':
+            fechaInicial = j['fecha']
+        if j['fin'] == u'Terminado':
+            fechaFinal = j['fecha']
+    
+    print(fechaFinal)
+    fechaCreacion = tarjeta.create_date
+    diferencia = fechaFinal - fechaInicial
+    tiempoEnDias = diferencia.days
+    tiempoEnSeg = diferencia.seconds / 3600
+    # model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias, 'horas': tiempoEnSeg}
+    model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias}
+    return model
+
 @bottle.route('/tarjeta/<id_tarjeta>')
 def getTarjeta(id_tarjeta):
     '''Metodo que permite obtener una 
