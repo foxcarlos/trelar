@@ -229,20 +229,22 @@ def getBuscarTarjetasLeadTime(id_tarjeta):
     tarjeta = client.get_card(id_tarjeta)
     listaFechaMovTarjeta = [ dict(zip( ['inicio' ,'fin' ,'fecha'] ,(f[0], f[1], f[2]) )) \
     for f in tarjeta.listCardMove_date()]
-    
+    fechaInicial = ''
+    fechaFinal = ''
     for j in listaFechaMovTarjeta:
         if j['inicio'] == u'Ideas (backlog)':
             fechaInicial = j['fecha']
         if j['fin'] == u'Terminado':
             fechaFinal = j['fecha']
     
-    print(fechaFinal)
-    fechaCreacion = tarjeta.create_date
-    diferencia = fechaFinal - fechaInicial
-    tiempoEnDias = diferencia.days
-    tiempoEnSeg = diferencia.seconds / 3600
-    # model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias, 'horas': tiempoEnSeg}
-    model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias}
+    model = {'Nombre Tarjeta': tarjeta.name, 'dias': 'Tarjeta no paso por BackLog'}
+    if fechaInicial and fechaFinal:
+        fechaCreacion = tarjeta.create_date
+        diferencia = fechaFinal - fechaInicial
+        tiempoEnDias = diferencia.days
+        tiempoEnSeg = diferencia.seconds / 3600
+        # model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias, 'horas': tiempoEnSeg}
+        model = {'Nombre Tarjeta': tarjeta.name, 'dias': tiempoEnDias}
     return model
 
 @bottle.route('/tarjeta/<id_tarjeta>')

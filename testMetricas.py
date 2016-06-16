@@ -80,7 +80,6 @@ def metricasLeadTime():
             tarjeta_id = t['id']
             # print(tarjeta_id)
             url = "http://127.0.0.1:8086/tarjetasLeadTime/{0}".format(tarjeta_id)
-            print(url)
             tiempos = requests.get(url)
             print(tiempos.json())
             
